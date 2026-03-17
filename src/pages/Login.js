@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setCredentials, setError } from '../redux/authSlice';
+import { loginUser } from '../redux/authSlice';
 
 function Login() {
   const navigate = useNavigate();
@@ -32,21 +32,16 @@ function Login() {
     });
   };
 
- const handleSubmit = async (e) => {
+ const handleSubmit = (e) => {
   e.preventDefault();
-  
-  if (!formData.email || !formData.password) {
-    setLocalError('Please fill in all fields');
-    return;
-  }
-
-  try {
-    const { data } = await axios.post('http://localhost:5000/api/auth/login', formData);
-    dispatch(setCredentials({ user: data.user, token: data.token }));
-    navigate(from);
-  } catch (err) {
-    setLocalError(err.response?.data?.message || 'Login failed');
-  }
+  dispatch(loginUser({ email: formData.email, password: formData.password }))
+    .unwrap()
+    .then(() => {
+      navigate(from);
+    })
+    .catch((error) => {
+      setLocalError(error);
+    });
 };
 
   return (

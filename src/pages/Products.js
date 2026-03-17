@@ -8,31 +8,29 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,
   Pagination,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import ProductCard from '../components/ProductCard';
-import { setCategory } from '../redux/productSlice';
-
-// Sample product data (will be replaced with API data)
-const sampleProducts = [
-  { id: 1, name: 'Product 1', price: 29.99, description: 'Description 1', category: 'electronics', rating: 4, reviews: 10 },
-  { id: 2, name: 'Product 2', price: 39.99, description: 'Description 2', category: 'clothing', rating: 5, reviews: 15 },
-  { id: 3, name: 'Product 3', price: 49.99, description: 'Description 3', category: 'books', rating: 3, reviews: 5 },
-  // Add more products as needed
-];
+import { setCategory, fetchProducts } from '../redux/productSlice'; 
 
 function Products() {
   const dispatch = useDispatch();
-  const { searchQuery, category } = useSelector((state) => state.products);
+  const { products, loading, error, searchQuery, category } = useSelector((state) => state.products);
   const [page, setPage] = React.useState(1);
   const itemsPerPage = 8;
 
+  // Fetch products when component mounts
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
   // Filter products based on search and category
-  const filteredProducts = sampleProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = category === 'all' || product.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -43,6 +41,22 @@ function Products() {
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+
+  if (loading) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -72,7 +86,7 @@ function Products() {
         <>
           <Grid container spacing={3}>
             {displayedProducts.map((product) => (
-              <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
+              <Grid item key={product._id || product.id} xs={12} sm={6} md={4} lg={3}>
                 <ProductCard product={product} />
               </Grid>
             ))}

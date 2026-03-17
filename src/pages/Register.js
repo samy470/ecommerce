@@ -12,6 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../redux/authSlice';
+import { registerUser } from '../redux/authSlice';
 
 function Register() {
   const navigate = useNavigate();
@@ -31,35 +32,20 @@ function Register() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
   e.preventDefault();
-
-  if (!formData.name || !formData.email || !formData.password) {
-    setError('Please fill in all fields');
-    return;
-  }
-
-  if (formData.password !== formData.confirmPassword) {
-    setError('Passwords do not match');
-    return;
-  }
-
-  if (formData.password.length < 6) {
-    setError('Password must be at least 6 characters');
-    return;
-  }
-
-  try {
-    const { data } = await axios.post('http://localhost:5000/api/auth/register', {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password
+  dispatch(registerUser({ 
+    name: formData.name,
+    email: formData.email, 
+    password: formData.password 
+  }))
+    .unwrap()
+    .then(() => {
+      navigate('/');
+    })
+    .catch((error) => {
+      setError(error);
     });
-    dispatch(setCredentials({ user: data.user, token: data.token }));
-    navigate('/');
-  } catch (err) {
-    setError(err.response?.data?.message || 'Registration failed');
-  }
 };
 
   return (
