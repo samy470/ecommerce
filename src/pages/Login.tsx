@@ -3,6 +3,8 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface LoginForm {
   email: string;
   password: string;
@@ -21,7 +23,7 @@ function Login({ setIsLoggedIn, setUsername }: { setIsLoggedIn: (value: boolean)
     setMessage('');
 
     try {
-      const res = await fetch('http://localhost:8000/login', {
+      const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
