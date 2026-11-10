@@ -3,6 +3,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface RegisterForm {
   name: string;
   email: string;
@@ -31,7 +33,7 @@ function Register(): JSX.Element {
     setMessage('');
 
     try {
-      const res = await fetch('http://localhost:8000/register', {
+      const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
